@@ -1,5 +1,6 @@
 enum InitStatus{
   complete,
   awaitIP,
-  error
+  error,
+  loading
 }
