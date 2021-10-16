@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Home(),
+      home: GeneralScreen(),
     );
   }
 }
@@ -50,6 +50,10 @@ class _HomeState extends State<Home> {
   bool connecting = false;
   bool searching = false;
 
+   doneHandler (){}
+
+   errorHandler(d){}
+
 
 
   @override
@@ -69,7 +73,10 @@ class _HomeState extends State<Home> {
     printL("Connect $ip");
     Socket.connect(ip, 80).then((Socket sock) {
       socket = sock;
-
+      socket.listen(dataHandler,
+          onError: errorHandler,
+          onDone: doneHandler,
+          cancelOnError: false);
       printL("initialize");
       socket.write("esp\n");
 
@@ -155,21 +162,21 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text(_initStatusString(initStatus), style: TextStyle(color: Colors.black),),
-        actions: [
-          GestureDetector(
-            behavior: HitTestBehavior.deferToChild,
-              onTap: (){
-              cleanData();
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Icon(Icons.reset_tv, color: Colors.black, ),
-              ))
-        ],
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.white,
+      //   title: Text(_initStatusString(initStatus), style: TextStyle(color: Colors.black),),
+      //   actions: [
+      //     GestureDetector(
+      //       behavior: HitTestBehavior.deferToChild,
+      //         onTap: (){
+      //         //cleanData();
+      //         },
+      //         child: Padding(
+      //           padding: const EdgeInsets.all(12.0),
+      //           child: Icon(Icons.reset_tv, color: Colors.black, ),
+      //         ))
+      //   ],
+      // ),
       body: connecting?
       Center(child: Column(
         children: [
@@ -186,7 +193,7 @@ class _HomeState extends State<Home> {
   Widget _buildBody() {
     switch (initStatus) {
       case InitStatus.complete:
-        return GeneralScreen();
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> GeneralScreen()), (route) => false);
         break;
       case InitStatus.awaitIP:
         return _buildCAwaitIP();
