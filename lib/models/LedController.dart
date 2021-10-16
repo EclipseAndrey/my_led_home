@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
+import 'package:my_led_home/models/initStatus.dart';
+import 'package:my_led_home/socket.dart';
+import 'package:rxdart/rxdart.dart';
 
 ///  режим --- начало ---- конец ---- доп --------------------
 ///  Режимы
@@ -35,7 +40,21 @@ import 'package:flutter/cupertino.dart';
 ///
 ///
 
+
+
+
 class LedController{
+
+  LedController(this.socket){
+    socket.listen(dataHandler,
+        onError: errorHandler,
+        onDone: doneHandler,
+        cancelOnError: false);
+  }
+  Socket socket;
+  BehaviorSubject _statusController = BehaviorSubject<InitStatus>();
+  Stream get streamStatus => _statusController.stream;
+
 
   static final int countLeds = 300;
   static final int lMode = 3;
@@ -50,16 +69,32 @@ class LedController{
   updateCurrentEffects()async{
     //TODO update current effects
   }
+  addEffect(Effect effect){
+    socket.write(effect.toData());
+  }
+
+  void errorHandler(error, StackTrace trace){
+    print(error);
+    message += ("SOCKET:\n $error\n");
+    setState(() {
+
+    });
+  }
+
+  void doneHandler(){
+    socket.destroy();
+    printL("SOCKET done");
+  }
 
 
+  void cleanData(){
+    socket.destroy();
+    socket = null;
+  }
 
-
-
-
-
-
-
-
+  dispose(){
+    _statusController.close();
+  }
 
 
 }
@@ -162,6 +197,7 @@ class Effect{
     return _addingNulls(mode.toString(), lMode)
         + _addingNulls(distance.begin.toString(), lBegin)
         +_addingNulls(distance.end.toString(), lEnd)
-        +_addingNulls(data, lData);
+        +_addingNulls(data, lData)
+        +"\n";
   }
 }

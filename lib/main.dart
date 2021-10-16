@@ -69,15 +69,10 @@ class _HomeState extends State<Home> {
     printL("Connect $ip");
     Socket.connect(ip, 80).then((Socket sock) {
       socket = sock;
-      socket.listen(dataHandler,
-          onError: errorHandler,
-          onDone: doneHandler,
-          cancelOnError: false);
+
       printL("initialize");
       socket.write("esp\n");
-      stdin.listen((data) {
 
-      });
       setState(() {});
     }).catchError((AsyncError e) {
       printL("Unable to connect: $e");
@@ -335,20 +330,7 @@ class _HomeState extends State<Home> {
 
   }
 
-  void errorHandler(error, StackTrace trace){
 
-
-    print(error);
-    message += ("SOCKET:\n $error\n");
-    setState(() {
-
-    });
-  }
-
-  void doneHandler(){
-    socket.destroy();
-    printL("SOCKET done");
-  }
 
   printL(String str){
     message += str + "\n";
@@ -380,15 +362,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void cleanData(){
-    socket.destroy();
-    socket = null;
-    initStatus = InitStatus.awaitIP;
-    _search();
-    setState(() {
 
-    });
-  }
 
 
 
